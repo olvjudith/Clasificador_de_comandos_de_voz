@@ -4,6 +4,10 @@ Created on Sun Apr 26 00:47:59 2020
 
 @author: olvju
 """
+'''
+https://www.youtube.com/watch?v=F1TNkJMgMBE
+https://www.youtube.com/watch?v=q-N6IcgCqCE&lc=UgyC6pgFvN9fOAlcMU14AaABAg.97vYT1608TL97vZ9L1LGKE
+'''
 import speech_recognition as sr
 import time
 
