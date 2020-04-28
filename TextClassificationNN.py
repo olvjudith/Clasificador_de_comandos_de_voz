@@ -263,8 +263,5 @@ def classify(sentence, show_details=False):
     print ("%s \n classification: %s" % (sentence, return_results))
     return return_results
 
-classify("activar sonaja")
-classify("adios auto")
-classify("subir vidrio")
-print ()
-classify("activar ruido", show_details=True)
+#classify("activar vidrio", show_details=True)
+#classify("bajar asiento", show_details=True)
