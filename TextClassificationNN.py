@@ -15,38 +15,25 @@ import json
 import datetime
 import numpy as np
 import time
+import csv
 stemmer = LancasterStemmer()
 
 # 4 clases de datos de entrenamiento
 training_data = [] #datos de entrenamiento
-training_data.append({"class":"activar ruido", "sentence":"activar ruido"})
-training_data.append({"class":"activar fiesta", "sentence":"activar fiesta"})
-# training_data.append({"class":"activar ruido", "sentence":"activar acondicionador"})
-# training_data.append({"class":"activar ruido", "sentence":"activar modo relajacion"})
-# training_data.append({"class":"activar ruido", "sentence":"prender aspersores"})
-# training_data.append({"class":"activar ruido", "sentence":"activar encendedor"})
-# training_data.append({"class":"activar ruido", "sentence":"prender luces"})
+comandos=[]
+auxiliar=[]
+with open('basededatos.csv') as File:
+    reader = csv.reader(File, delimiter=',', quotechar=',',
+                        quoting=csv.QUOTE_MINIMAL)
+    for row in reader:
+        comandos.append(row)
 
-training_data.append({"class":"apagar", "sentence":"Apagar modo fiesta"})
-training_data.append({"class":"apagar", "sentence":"Apagar acondicionador"})
-training_data.append({"class":"apagar", "sentence":"Apagar modo relajacion"})
-training_data.append({"class":"apagar", "sentence":"Apagar aspersores"})
-training_data.append({"class":"apagar", "sentence":"Apagar encendedor"})
-training_data.append({"class":"apagar", "sentence":"Apagar luces"})
+for i in range(len(comandos)):
+    auxiliar.append(comandos[i][0])
 
-training_data.append({"class":"aumentar", "sentence":"sube la velocidad"})
-training_data.append({"class":"aumentar", "sentence":"sube el vidrio"})
-training_data.append({"class":"aumentar", "sentence":"aumenta el volumen"})
-training_data.append({"class":"aumentar", "sentence":"aumenta la temperatura"})
-training_data.append({"class":"aumentar", "sentence":"sube el asiento"})
-training_data.append({"class":"aumentar", "sentence":"sube la llanta"})
-
-training_data.append({"class":"disminuir", "sentence":"disminuye la velocidad"})
-training_data.append({"class":"disminuir", "sentence":"baja el vidrio"})
-training_data.append({"class":"disminuir", "sentence":"baja el volumen"})
-training_data.append({"class":"disminuir", "sentence":"disminuye la temperatura"})
-training_data.append({"class":"disminuir", "sentence":"baja el asiento"})
-training_data.append({"class":"disminuir", "sentence":"baja la llanta"})
+training_data=[]
+for i in range(len(comandos)-1):
+    training_data.append({"class":auxiliar[i+1], "sentence":auxiliar[i+1]})
 #print ("%s sentences of training data" % len(training_data))
 #--------------------------------------------------------------------
 #organizacion de datos y estructuras para trabajar algoritmicamente
@@ -58,15 +45,17 @@ ignore_words = ['?']
 for pattern in training_data:
     # # tokenizar/dividir cada palabra en la oración
     w = nltk.word_tokenize(pattern['sentence'])
-     # agregar a nuestra lista de palabras
+     # agregar a nuestra lista de palabras, es como un diccionario
     words.extend(w)
      # agregar a documentos en nuestro corpus
+     #cada palabra derivada y el número de ocurrencias
     documents.append((w, pattern['class']))
      # agregar a nuestra lista de clases
+     #cada clase y la lista de palabras derivadas que contiene
     if pattern['class'] not in classes:
         classes.append(pattern['class'])
 
-# detener y poner en minuscula cada palabra y eliminar duplicados
+# detener y poner en minuscula cada palabra y eliminar duplicados, raíz
 words = [stemmer.stem(w.lower()) for w in words if w not in ignore_words]
 words = list(set(words))
 
@@ -105,23 +94,29 @@ for doc in documents:
 print ("# words", len(words))
 print ("# classes", len(classes))
 # # sample training/output
-# i = 13
-# w = documents[i][0]
-# print ([stemmer.stem(word.lower()) for word in w])
-# print (training[i])
-# print (output[i])
+i = 0
+w = documents[i][0]
+#raices de la oración
+print ([stemmer.stem(word.lower()) for word in w])
+#coincidencia de las raices en la bolsa(1 si es igual)
+print (training[i])
+#pone un 1 a la clase pertenece
+print (output[i])
 #--------------------------------------------------------------------
 # calcular la no linealidad sigmoidea
 def sigmoid(x):
     output = 1/(1+np.exp(-x))
     return output
+'''
+la salida es la función de sigmoid evaluada en x
+''' 
 
 # convierte la salida de la función sigmoide a su derivada
 def sigmoid_output_to_derivative(output):
     return output*(1-output)
  
 def clean_up_sentence(sentence):
-    # tokenizar/dividir el patrón
+    # tokenizar/dividir el patrón/ divide la oración en palabras
     sentence_words = nltk.word_tokenize(sentence)
     # minusculas de cada palabra
     sentence_words = [stemmer.stem(word.lower()) for word in sentence_words]
@@ -266,10 +261,14 @@ def classify(sentence, show_details=False):
     results.sort(key=lambda x: x[1], reverse=True) 
     return_results =[[classes[r[0]],r[1]] for r in results]
     print ("%s \n classification: %s" % (sentence, return_results))
+   
+    confiabilidad_list = return_results[0][1]
+    confiabilidad = confiabilidad_list.item()
+ #   print(type(confiabilidad))
+    if (confiabilidad > 0.89):
+        print ("El comando dictado fue encontrado, a continuacion se accionará : %s" %( sentence))
+    
     return return_results
 
-classify("activar sonaja")
-classify("adios auto")
-classify("subir vidrio")
-print ()
-classify("activar ruido", show_details=True)
+#classify("activar vidrio", show_details=True)
+#classify("bajar asiento", show_details=True)
