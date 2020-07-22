@@ -46,7 +46,7 @@ Recepcion_comando()
 
 def Comando_a_texto():
     r = sr.Recognizer()
-    with sr.AudioFile('C:\\Users\\olvju\\Documents\\8.Optativa profesionalizante II\\Clasificador de comandos de voz\\grabacion0.wav') as source:
+    with sr.AudioFile('grabacion0.wav') as source:
         audio = r.listen(source)
         try:
             print("Espera un momento...")
@@ -70,5 +70,5 @@ if auxiliar.lower() == "agregar comando":
     my_df = pd.DataFrame(comando_agregado) 
     my_df.to_csv('basededatos.csv', mode='a', index=False, header=False,sep=';',decimal=',')
 else:
-    print("no")
+    print("Clasificando comando...")
     TextClassificationNN.classify(auxiliar, show_details=True)
